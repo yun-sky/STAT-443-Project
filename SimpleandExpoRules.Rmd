@@ -1,0 +1,69 @@
+---
+title: "simpleandexpo"
+output: pdf_document
+date: "2026-03-31"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Simple and Exponential Forecasting
+
+Loading data
+
+```{r}
+library(forecast)
+
+unemployment <- read.csv("data/unemployment.csv", header=T)
+rates <- unemployment$LRUN64TTCAM156S
+rates <- rates[-length(rates)]
+```
+
+Training and testing set
+
+```{r}
+number_train <- length(rates) * 0.80
+number_rates <- length(rates)
+train = rates[1:number_train]
+test = rates[(number_train+1):number_rates]
+```
+
+Persistence
+
+```{r}
+pred = numeric(length(test))
+pred[1] = train[number_train]
+
+for (i in 2:length(test)) {
+  pred[i] = test[i-1]
+}
+
+rmse <- sqrt(mean((test - pred)^2))
+rmse
+
+
+#for (i in 2:length(test)) {
+  #pred[i] = pred[i-1]
+#}
+```
+
+Average
+
+```{r}
+rate_mean = mean(train)
+rate_fc = rep(rate_mean, length(test))
+rmse_rate = sqrt(mean((test - rate_fc)^2))
+rmse_rate
+```
+
+Holt-Winters Seasonal Exponential Smoothing
+
+```{r}
+rate_seasonal_ts <- ts(train, frequency = 12)
+
+hw_rate_model <- HoltWinters(rate_seasonal_ts) 
+rate_fc_result <- forecast(hw_rate_model, h = length(test))
+rate_rmse_hw <- sqrt(mean((test - rate_fc_result$mean)^2))
+rate_rmse_hw
+```

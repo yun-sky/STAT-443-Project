@@ -51,7 +51,7 @@ head(train_df)
 **Colinearity Between LFP and WP**
 ```{r}
 # Collinearity between LFP and WP
-corr_table <- cor(select(train_df, -observation_date))
+corr_table <- cor(select(train_df, -observation_date))corr_table
 ```
 - We decided to exclude working_pop_total from our regression model due to collinearity between unemployment_rate and labor_force_total. 
 - Hence, we only examine interest rate and labor force participation in our ARMAX model. 

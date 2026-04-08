@@ -1,0 +1,541 @@
+---
+title: "unemploymentcode"
+output: pdf_document
+date: "2026-04-07"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+# loading and prep
+
+library(forecast)
+
+unemployment <- read.csv("Unemployment.csv", header=T)
+rates <- unemployment$LRUN64TTCAM156S
+rates <- rates[-length(rates)]
+
+number_train <- length(rates) * 0.80
+number_rates <- length(rates)
+train = rates[1:number_train]
+test = rates[(number_train+1):number_rates]
+
+# seasonal persistence 
+
+pred_periodic = numeric(length(test))
+
+for (i in 1:12) {
+pred_periodic[i] = train[(number_train)-12+i]
+}
+
+for (i in 13:length(test)) {
+  pred_periodic[i] = test[i-12]
+}
+
+rmse <- sqrt(mean((test - pred_periodic)^2))
+rmse
+
+# average
+
+rate_mean = mean(train)
+rate_fc = rep(rate_mean, length(test))
+rmse_rate = sqrt(mean((test - rate_fc)^2))
+rmse_rate
+
+# holt-winters seasonal exponential
+
+rate_seasonal_ts <- ts(train, frequency = 12)
+
+hw_rate_model <- HoltWinters(rate_seasonal_ts) 
+rate_fc_result <- forecast(hw_rate_model, h = length(test))
+rate_rmse_hw <- sqrt(mean((test - rate_fc_result$mean)^2))
+rate_rmse_hw
+```
+
+```{r}
+
+# ARIMAX
+
+unemp <- read.csv("Unemployment.csv")
+work_pop <- read.csv("Work_pop.csv")
+labor_part <- read.csv("Labor_part.csv")
+int_rates <- read.csv("Int_rates.csv")
+
+colnames(unemp) <- c("date", "unemployment")
+colnames(work_pop) <- c("date", "work_pop")
+colnames(labor_part) <- c("date", "labor_part")
+colnames(int_rates) <- c("date", "int_rates")
+
+unemp$date <- as.Date(unemp$date)
+work_pop$date <- as.Date(work_pop$date)
+labor_part$date <- as.Date(labor_part$date)
+int_rates$date <- as.Date(int_rates$date)
+
+data_total <- merge(unemp, work_pop, by = "date")
+data_total <- merge(data_total, labor_part, by = "date")
+data_total <- merge(data_total, int_rates, by = "date")
+
+data_total <- data_total[order(data_total$date), ]
+
+# format ts object
+unemp_ts <- ts(data_total$unemployment,
+               start = c(1976, 1),
+               frequency = 12)
+
+n <- length(unemp_ts)
+
+# train set: 1976.01 to 2015.12 (80%)
+train_ts <- window(unemp_ts, end = c(2015, 12))
+
+# holdout set: 2016.01 to 2025.12 (20%)
+holdout_ts <- window(unemp_ts, start = c(2016, 1))
+
+# build matrix of explanatory variables for ARIMAX
+n_total <- length(unemp_ts)
+n_train <- length(window(unemp_ts, end = c(2015, 12)))
+
+xreg_all <- as.matrix(data_total[, c("labor_part", "int_rates")])
+xreg_train <- xreg_all[1:n_train, , drop = FALSE]
+xreg_holdout <- xreg_all[(n_train + 1):n_total, , drop = FALSE]
+
+# ARIMAX 1-step ahead forecasts for holdout set
+arimax_fc <- function(tsdata, ntrain, order, seasonal, method, traincoef,
+                      include.mean, xreg, iprint = FALSE) {
+  obj <- arima(
+    tsdata,
+    order = order,
+    seasonal = seasonal,
+    init = traincoef,
+    fixed = traincoef,
+    method = method,
+    include.mean = include.mean,
+    xreg = xreg,
+    transform.pars = FALSE,
+    optim.control = list(maxit = 0)
+  )
+  
+  fc <- tsdata - obj$residuals
+  ntotal <- length(tsdata)
+  holdout_fc <- fc[(ntrain + 1):ntotal]
+  holdout <- tsdata[(ntrain + 1):ntotal]
+  
+  if (iprint) {
+    print(cbind(holdout, holdout_fc))
+  }
+  
+  rmse <- sqrt(mean((holdout - holdout_fc)^2))
+  list(rmse = rmse, fc = holdout_fc)
+}
+
+# 1. auto arimax
+library(forecast)
+arimax_auto <- auto.arima(
+  train_ts,
+  xreg = xreg_train,
+  seasonal = TRUE
+)
+#auto.arimax chose ARIMA(2,0,2)(1,0,0)[12] errors 
+summary(arimax_auto) # 3.723267
+# (1,0,2)(1,0,0)12 2.754148.    -255.06
+# (2,0,1)(1,0,0)12 3.767669.    -303.66
+# (2,1,2)(1,1,0)12 3.546538.    -37.06
+# (3,0,2)(1,0,0)12 3.536629.    -304.3
+# (2,0,2)(2,0,1)12 3.332236.    -249.57
+# (2,0,2)(2,0,0)12 3.706091.    -317.6
+library(forecast)
+
+# arimax CSS method
+arimax_css <- Arima(
+  train_ts,
+  order = c(2,0,2),
+  seasonal = list(order = c(1,0,0), period = 12),
+  include.mean = TRUE,
+  method = "CSS",
+  xreg = xreg_train
+)
+print(arimax_css)
+
+
+# h-step forecast css
+fc_css <- forecast(arimax_css, 
+                   h = length(holdout_ts), 
+                   xreg = xreg_holdout)
+rmse_css <- sqrt(mean((holdout_ts - fc_css$mean)^2))
+rmse_css # 3.561992
+
+# 1-step forecast css
+css_fc <- arimax_fc(
+  tsdata = unemp_ts,
+  ntrain = n_train,
+  order = c(2,0,2),
+  seasonal = list(order = c(1,0,0), period = 12),
+  method = "CSS",
+  traincoef = arimax_css$coef,
+  include.mean = TRUE,
+  xreg = xreg_all
+)
+css_fc$rmse # 1.11026
+
+
+# arimax ML method
+arimax_ml <- Arima(
+  train_ts,
+  order = c(2,0,2),
+  seasonal = list(order = c(1,0,0), period = 12),
+  method = "ML",
+  include.mean = TRUE,
+  xreg = xreg_train
+)
+print(arimax_ml)
+
+# h-step forecast ml
+fc_ml <- forecast(arimax_ml, 
+                          h = length(holdout_ts), 
+                          xreg = xreg_holdout)
+rmse_ml <- sqrt(mean((holdout_ts - fc_ml$mean)^2))
+rmse_ml # 3.773121
+
+# 1-step forecast ml
+css_fc <- arimax_fc(
+  tsdata = unemp_ts,
+  ntrain = n_train,
+  order = c(2,0,2),
+  seasonal = list(order = c(1,0,0), period = 12),
+  method = "ML",
+  traincoef = arimax_ml$coef,
+  include.mean = TRUE,
+  xreg = xreg_all
+)
+css_fc$rmse # 1.105931
+
+
+# 2. change p, P, q, Q values to find model that lowers holdout RMSE
+arimax_changed <- Arima(
+  train_ts,
+  order = c(1,0,2),
+  seasonal = list(order = c(1,0,0), period = 12),
+  xreg = xreg_train
+)
+summary(arimax_changed)
+
+fc_changed <- forecast(arimax_changed, 
+                h = length(holdout_ts), 
+                xreg = xreg_holdout)
+rmse_changed <- sqrt(mean((holdout_ts - fc_changed$mean)^2))
+rmse_changed # 2.754148
+
+
+# arimax CSS method for changed model
+arimax_changed_css <- Arima(
+  train_ts,
+  order = c(1,0,2),
+  seasonal = list(order = c(1,0,0), period = 12),
+  method = "CSS",
+  include.mean = TRUE,
+  xreg = xreg_train
+)
+print(arimax_changed_css)
+
+# h-step changed css forecast
+fc_changed_css <- forecast(arimax_changed_css, 
+                   h = length(holdout_ts), 
+                   xreg = xreg_holdout)
+rmse_changed_css <- sqrt(mean((holdout_ts - fc_changed_css$mean)^2))
+rmse_changed_css # 2.75788
+
+# 1-step changed css forecast
+onestep_fc_changed_css <- arimax_fc(
+  tsdata = unemp_ts,
+  ntrain = n_train,
+  order = c(1,0,2),
+  seasonal = list(order = c(1,0,0), period = 12),
+  method = "ML",
+  traincoef = arimax_changed_css$coef,
+  include.mean = TRUE,
+  xreg = xreg_all
+)
+onestep_fc_changed_css$rmse # 0.9944612
+
+# arimax ML method for changed model
+arimax_changed_ml <- Arima(
+  train_ts,
+  order = c(1,0,2),
+  seasonal = list(order = c(1,0,0), period = 12),
+  method = "ML",
+  include.mean = TRUE,
+  xreg = xreg_train
+)
+print(arimax_changed_ml)
+
+# h-step changed ml forecast
+fc_changed_ml <- forecast(arimax_changed_ml, 
+                   h = length(holdout_ts), 
+                   xreg = xreg_holdout)
+rmse_changed_ml <- sqrt(mean((holdout_ts - fc_changed_ml$mean)^2))
+rmse_changed_ml # 2.754148
+
+# 1-step changed ml forecast
+onestep_fc_changed_ml <- arimax_fc(
+  tsdata = unemp_ts,
+  ntrain = n_train,
+  order = c(1,0,2),
+  seasonal = list(order = c(1,0,0), period = 12),
+  method = "ML",
+  traincoef = arimax_changed_ml$coef,
+  include.mean = TRUE,
+  xreg = xreg_all
+)
+onestep_fc_changed_ml$rmse # 0.9944082
+```
+
+```{r}
+
+# ARIMA
+
+data <- read.csv("Unemployment.csv")
+data <- data[-nrow(data), ]
+head(data)
+str(data)
+
+colnames(data) <- c("date", "unemployment")
+
+# format date and ts object, set n = sample size
+data$date <- as.Date(data$date)
+
+unemp_ts <- ts(data$unemployment,
+               start = c(1976, 1),
+               frequency = 12)
+
+n <- length(unemp_ts)
+
+# train set: 1976.01 to 2015.12 (80%)
+train_ts <- window(unemp_ts, end = c(2015, 12))
+
+# holdout set: 2016.01 to 2025.12 (20%)
+holdout_ts <- window(unemp_ts, start = c(2016, 1))
+
+### PLOTS
+# train set TS plot
+par(mfrow = c(1, 1))
+
+train_ts_plot <- plot(train_ts,
+       main = "Training Set: Canada Monthly Unemployment Rate (1976–2015)",
+       ylab = "Unemployment Rate", xlab = "Year")
+
+# ACF
+acf_plot <- acf(train_ts, main = "ACF of Training Series")
+
+# PACF
+pacf_plot <- pacf(train_ts, main = "PACF of Training Series")
+
+
+#######
+
+stl_fit <- stl(train_ts, s.window = "periodic")
+
+plot(stl_fit, main = "STL Decomposition of Training Unemployment Series")
+
+### ARIMA FITTING
+library(forecast)
+
+## 1. auto.arima fit
+# no differencing applied (stationary = TRUE)
+fit_stat <- auto.arima(train_ts, seasonal = TRUE, stationary = TRUE)
+
+# differencing applied (stationary = FALSE) ;default
+fit_nonstat <- auto.arima(train_ts, seasonal = TRUE, stationary = FALSE)
+
+summary(fit_stat)
+summary(fit_nonstat)
+
+# # residuals plots
+# par(mfrow = c(1,2))
+# acf(residuals(fit_nonstat), main = "Residual ACF of auto.arima model")
+# pacf(residuals(fit_nonstat), main = "Residual PACF of auto.arima model")
+
+# BASELINE MODEL: ARIMA(1,1,3)(1,0,2)[12] 
+
+## 2. arima fit (perturbed values from auto.arima)
+
+# ARIMA(1,1,2)(1,0,2)[12] 
+fit1 <- Arima(train_ts, order = c(1,1,2),
+              seasonal = list(order = c(1,0,2), period = 12), method = "ML")
+
+# ARIMA(1,1,3)(1,0,1)[12] 
+fit2 <- Arima(train_ts, order = c(1,1,3),
+              seasonal = list(order = c(1,0,1), period = 12), method = "ML")
+
+# ARIMA(1,1,2)(1,0,1)[12] 
+fit3 <- Arima(train_ts, order = c(1,1,2),
+              seasonal = list(order = c(1,0,1), period = 12), method = "ML")
+
+# ARIMA(0,1,3)(1,0,2)[12] 
+fit4 <- Arima(train_ts, order = c(0,1,3),
+              seasonal = list(order = c(1,0,2), period = 12), method = "ML")
+
+# ARIMA(1,1,1)(1,0,2)[12] 
+fit5 <- Arima(train_ts, order = c(1,1,1),
+              seasonal = list(order = c(1,0,2), period = 12), method = "ML")
+
+# ARIMA(2,1,3)(1,0,2)[12] 
+fit6 <- Arima(train_ts, order = c(2,1,3),
+              seasonal = list(order = c(1,0,2), period = 12), method = "ML")
+
+## 3. moving 1-step ahead forecasts for holdout set
+# define ntrain and zall
+ntrain <- length(train_ts)
+
+zall <- ts(c(train_ts, holdout_ts),
+           start = start(train_ts),
+           frequency = frequency(train_ts))
+
+# computes moving 1-step ahead forecasts using fitted ARIMA models
+arma_fc <- function(tsdata, ntrain, order, seasonal, method,
+                    traincoef, include.mean, iprint=FALSE)
+{ 
+  obj <- arima(tsdata, 
+              order=order, 
+              seasonal=seasonal,
+              init=traincoef, 
+              fixed=traincoef,
+              method=method, 
+              include.mean=include.mean,
+              optim.control=list(maxit=0))
+  
+  fc <- tsdata - obj$residuals
+  ntotal <- length(tsdata)
+  
+  holdout_fc <- fc[(ntrain+1):ntotal]
+  holdout <- tsdata[(ntrain+1):ntotal]
+  
+  if(iprint) print(cbind(holdout, holdout_fc))
+  
+  rmse <- sqrt(mean((holdout - holdout_fc)^2))
+  
+  list(rmse=rmse, fc=holdout_fc, residuals=obj$residuals)
+}
+
+# find arima orders for all models, list
+model_list <- list(
+  fit_nonstat = fit_nonstat,
+  fit1 = fit1,
+  fit2 = fit2,
+  fit3 = fit3,
+  fit4 = fit4,
+  fit5 = fit5,
+  fit6 = fit6
+)
+
+arima_orders <- lapply(model_list, arimaorder)
+
+# apply arma_fc to each model
+fc_results <- lapply(seq_along(model_list), function(i) {
+  fit_i <- model_list[[i]]
+  ord_i <- arima_orders[[i]]
+  
+  arma_fc(
+    tsdata = zall,
+    ntrain = ntrain,
+    order = c(ord_i[1], ord_i[2], ord_i[3]),
+    seasonal = list(order = c(ord_i[4], ord_i[5], ord_i[6]), period = ord_i[7]),
+    method = "ML",
+    traincoef = fit_i$coef,
+    include.mean = FALSE,
+    iprint = FALSE
+  )
+})
+
+names(fc_results) <- names(arima_orders)
+
+# extract RMSE values
+rmse_vals <- sapply(fc_results, function(x) x$rmse)
+
+## 4. tidy AIC and RMSE results into table
+library(knitr)
+
+rmse_table <- data.frame(
+  model_name = c(
+    "auto.arima: (1,1,3)(1,0,2)[12]",
+    "(1,1,2)(1,0,2)[12]",
+    "(1,1,3)(1,0,1)[12]",
+    "(1,1,2)(1,0,1)[12]",
+    "(0,1,3)(1,0,2)[12]",
+    "(1,1,1)(1,0,2)[12]",
+    "(2,1,3)(1,0,2)[12]"
+  ),
+  AIC = sapply(model_list, AIC),
+  RMSE = rmse_vals,
+  row.names = NULL
+)
+
+kable(rmse_table, digits = 3)
+```
+
+```{r}
+# ARMAX
+
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(forecast))
+suppressPackageStartupMessages(library(ggcorrplot))
+
+unempl <- read.csv("Unemployment.csv", header=TRUE)
+LF_total <- read.csv("Labor_part.csv", header=TRUE)
+WP_total <- read.csv("Work_pop.csv", header=TRUE)
+int_rate <- read.csv("Int_rates.csv", header=TRUE)
+
+# Renaming col-names
+colnames(unempl) <- c("observation_date", "unemployment_rate")
+colnames(LF_total) <- c("observation_date", "labor_force_total")
+colnames(WP_total) <- c("observation_date", "working_pop_total")
+colnames(int_rate) <- c("observation_date", "interest_rate")
+
+# Combine dataframes into on
+data <- merge(unempl, LF_total, id="observation_date") %>% 
+        merge(WP_total, id="observation_date") %>%
+        merge(int_rate, id="observation_date")
+
+# Create time Series Objects
+start_date <- c(1976, 1)
+train_end_date <- c(2015, 12)
+holdout_start_date <- c(2016, 1)
+
+unempl_ts <- ts(data$unemployment_rate, start=start_date, frequency=12)
+train_ts <- window(unempl_ts, end=c(2015, 12))
+holdout_ts <- window(unempl_ts, start=c(2016, 1))
+
+n_train = length(train_ts)
+n = nrow(data)
+
+# Creating dataframe Object
+train_df <- data[1:n_train, ]
+holdout_df <- data[n_train+1:n, ]
+
+head(train_df)
+
+
+## CCF and Correlation Plot
+# Colinearity Between LFP and WP
+
+# Collinearity between LFP and WP
+corr_table <- cor(select(train_df, -observation_date))
+
+# We decided to exclude working_pop_total from our regression model due to collinearity between unemployment_rate and labor_force_total. 
+# Hence, we only examine interest rate and labor force participation in our ARMAX model. 
+
+# CCF Plots for each of the predictors
+
+# Check if x_t leads y_t (y_t, x_t (Labor Force Participation)) 
+# Due to the non-stationarity of y_t, differencing helps avoid spurious correlations
+
+ccf(diff(train_df$interest_rate), diff(train_df$unemployment_rate), 
+    main="diff(Unemployment Rate) and diff(Interest_rate) CCF")
+ccf(diff(train_df$labor_force_total), diff(train_df$unemployment_rate), 
+    main="diff(Unemployment rate) and diff(Labor Force Participation) CCF")
+ccf(diff(train_df$working_pop_total), diff(train_df$unemployment_rate), 
+    main="diff(Unemployment Rate) and diff(Interest_rate) CCF")
+
+# For all CCF values, we assume that the predictors will lead unemployment rate so we only observe lagged $h < 0$ values
+```

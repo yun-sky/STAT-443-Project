@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.2.9)  8 APR 2026 20:07
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.2.9)  8 APR 2026 20:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -468,25 +468,39 @@ Package pdftex.def Info: figs/pacf-training.png  used on input line 89.
 (pdftex.def)             Requested size: 227.62204pt x 192.94629pt.
  [2 <./figs/stl-decomp.png>] [3 <./figs/acf-training.png> <./figs/pacf-training
 .png>]
-<figs/ccf-UR-IR.png, id=78, 790.45313pt x 487.8225pt>
+[4]
+<figs/ccf-UR-IR.png, id=86, 790.45313pt x 487.8225pt>
 File: figs/ccf-UR-IR.png Graphic file (type png)
 <use figs/ccf-UR-IR.png>
-Package pdftex.def Info: figs/ccf-UR-IR.png  used on input line 152.
+Package pdftex.def Info: figs/ccf-UR-IR.png  used on input line 158.
 (pdftex.def)             Requested size: 284.52756pt x 175.59363pt.
-
-[4]
-<figs/ccf-UR-LFP.png, id=88, 526.96875pt x 325.215pt>
+<figs/ccf-UR-LFP.png, id=87, 526.96875pt x 325.215pt>
 File: figs/ccf-UR-LFP.png Graphic file (type png)
 <use figs/ccf-UR-LFP.png>
-Package pdftex.def Info: figs/ccf-UR-LFP.png  used on input line 159.
+Package pdftex.def Info: figs/ccf-UR-LFP.png  used on input line 165.
 (pdftex.def)             Requested size: 284.52756pt x 175.60355pt.
-<figs/ccf-UR-WAP.png, id=89, 526.96875pt x 325.215pt>
+<figs/ccf-UR-WAP.png, id=88, 526.96875pt x 325.215pt>
 File: figs/ccf-UR-WAP.png Graphic file (type png)
 <use figs/ccf-UR-WAP.png>
-Package pdftex.def Info: figs/ccf-UR-WAP.png  used on input line 166.
+Package pdftex.def Info: figs/ccf-UR-WAP.png  used on input line 172.
 (pdftex.def)             Requested size: 284.52756pt x 175.60355pt.
- [5 <./figs/ccf-UR-IR.png> <./figs/ccf-UR-LFP.png> <./figs/ccf-UR-WAP.png>]
-[6] (EstrellaKwongNakajimaWangYun-stat443project.aux)
+ [5 <./figs/ccf-UR-IR.png> <./figs/ccf-UR-LFP.png>] [6 <./figs/ccf-UR-WAP.png>]
+
+Underfull \hbox (badness 10000) in paragraph at lines 248--252
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 254--258
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 259--263
+
+ []
+
+[7] (EstrellaKwongNakajimaWangYun-stat443project.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
@@ -496,8 +510,8 @@ out' has not changed.
 (rerunfilecheck)             Checksum: F54D595FC3263AC06A4AE99EA6F5067C;1590.
  ) 
 Here is how much of TeX's memory you used:
- 13281 strings out of 467865
- 225675 string characters out of 5418305
+ 13285 strings out of 467865
+ 225710 string characters out of 5418305
  679964 words of memory out of 5000000
  42014 multiletter control sequences out of 15000+600000
  633607 words of font info for 61 fonts, out of 8000000 for 9000
@@ -516,10 +530,10 @@ yyy/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/U
 sers/skyyy/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pf
 b><C:/Users/skyyy/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/
 cmtt10.pfb>
-Output written on EstrellaKwongNakajimaWangYun-stat443project.pdf (6 pages, 223
-850 bytes).
+Output written on EstrellaKwongNakajimaWangYun-stat443project.pdf (7 pages, 235
+392 bytes).
 PDF statistics:
- 166 PDF objects out of 1000 (max. 8388607)
- 33 named destinations out of 1000 (max. 500000)
+ 182 PDF objects out of 1000 (max. 8388607)
+ 37 named destinations out of 1000 (max. 500000)
  111 words of extra memory for PDF output out of 10000 (max. 10000000)
 

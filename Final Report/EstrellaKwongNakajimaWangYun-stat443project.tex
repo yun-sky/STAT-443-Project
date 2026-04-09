@@ -35,7 +35,7 @@ In a rapidly shifting economic landscape, understanding labor market trends is c
 The main response dataset is the “Unemployment Rate Total (15-64) Canada” dataset, where the response variable is:
 \vspace{0.3cm}
 \begin{itemize}
-\item Unemployment: The monthly unemployment rate of those between the ages of 15 and 64 in Canada 
+\item \texttt{Unemployment}: The monthly unemployment rate (UR) of those between the ages of 15 and 64 in Canada 
 \end{itemize}
 \vspace{0.3cm}
 
@@ -46,9 +46,9 @@ The explanatory datasets consist of the total working-age population, labour-for
 
 \vspace{0.3cm}
 \begin{itemize}
-\item Work\_pop: The monthly working-age population in Canada
-\item Labor\_part: The Canadian monthly labour-force participation rate 
-\item Int\_rates: Monthly Canadian interest-rate
+\item \texttt{Work\_pop}: The monthly working-age population (WAP) in Canada
+\item \texttt{Labor\_part}: The Canadian monthly labour-force participation (LFP) rate 
+\item \texttt{Int\_rates}: Monthly Canadian interest-rate (IR)
 \end{itemize}
 \vspace{0.3cm}
 
@@ -73,6 +73,7 @@ Our analysis will have the timeframe of 1976-01-01 to 2025-12-01.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.5]{"figs/stl-decomp.png"}
+\caption{STL Decomposition of unemployment series}
 \end{figure}
 
 The time series plot of the training set (1976-2015) shows several cyclical fluctuations in unemployment rate over time. Evidence of peaks and troughs are indicators of historical economic expansion and recession in Canada; for instance, unemployment rates peaked in the early 1980s due to a global effort of tightening monetary policies to combat rising inflation percentages. Further seasonal-trend decomposition shows a stable, repeating pattern occurring approximately yearly where year-long short-term fluctuations were observed in the time series data which strongly suggests a seasonality of period 12 present in the data. The overall trend, however, is more unclear as there is no consistent upward or downward trend; as the periods of rising and falling unemployment rates vary across the time series. It suggests that the series may be non-stationary. The remainder component suggests that the data is approximately white noise, although there are large residuals that are reflective of the aforementioned economic recessions.
@@ -128,6 +129,8 @@ For the initial model, \texttt{auto.arima()} was used on the training set to det
         Best AIC: (1,1,3)(1,0,2)[12] & 
         -194.332 & 0.788\\
         Best RMSE: (0,1,3)(1,0,2)[12] & -175.138 & 0.721\\
+    \hline\hline
+    
     \hline
     \end{tabular}
     \caption{Summary of AIC and holdout RMSE values based on\\ 1-step forecasts for the baseline and perturbed models.
@@ -140,11 +143,48 @@ As seen in Table 1, the baseline model selected by \texttt{auto.arima()} was ARI
 
 \subsection{ARMAX Model}
 
-\subsubsection*{Predictor Analysis}
+\subsubsection*{Cross-Correlation Analysis between Unemployment rate and potential predictors}
+
+To remove any long-term trends in the data, unemployment rate and predictors are differenced before applying the cross-correlation function to avoid spurious correlations. We only observe negative lags as we assume our predictors will lead unemployment rate.  
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=10cm]{figs/ccf-UR-IR}
+\caption{differenced UR and differenced IR cross-correlation}
+\label{fig:ccf-UR-IR}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=10cm]{figs/ccf-UR-LFP}
+\caption{differenced UR and differenced LFP cross-correlation}
+\label{fig:ccf-UR-LFP}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=10cm]{figs/ccf-UR-WAP}
+\caption{differenced UR and differenced WAP cross-correlation}
+\label{fig:ccf-UR-WAP}
+\end{figure}
+
+In \cref{fig:ccf-UR-LFP} we can see that unemployment rate is moderately correlated with LFP at lag 0, which indicates a potential predictor for forecasting unemployment rate.  \cref{fig:ccf-UR-WAP} also shows a slight correlation with unemployment rate at lag 8, but is excluded in the model for the reasons explained below. \cref{fig:ccf-UR-IR} also has a slight correlation with unemployment rate at lag 5, but is not as significant as the relationship between unemployment rate and LFP. 
+
+
+
+
 
 
 \subsubsection*{Best ARMAX model based on Holdout RMSE}
-Similar to the steps of the ARIMA model, our baseline ARIMAX model was produced from the \texttt{auto.arima()} function with xreg equal to our explanatory variables. We then varied the p, q, P and Q values around the baseline model using \texttt{Arima()} and calculated the moving 1-step holdout set RMSE values.
+Similar to the steps of the ARIMA model, our baseline ARIMAX model was produced from the \texttt{auto.arima()} function with xreg equal to our explanatory variables. WAP is excluded from our model as it had no significant contribution to the model in terms of forecasting abilities.
+
+TODO !!!
+\begin{align*}
+ Y_t = & \\
+		Y_t = & \\ 
+\end{align*}
+
+We then varied the p, q, P and Q values around the baseline model using \texttt{Arima()} and calculated the moving 1-step holdout set RMSE values.
 
 \begin{table}[H]
     \centering
@@ -172,7 +212,7 @@ The team was divided into two groups based on availability and common interest i
 \begin{table}[H]
     \centering
     \captionsetup{justification=centering,margin=2cm}
-    \begin{tabular}{|c|c|}
+    \begin{tabular}{|l|l|}
     \hline
         Topic & Names \\
     \hline\hline

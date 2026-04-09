@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.2.9)  8 APR 2026 11:59
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1) (preloaded format=pdflatex 2026.2.9)  8 APR 2026 20:07
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -456,19 +456,37 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 [1
 
 {C:/Users/skyyy/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
-<figs/acf-training.png, id=57, 385.44pt x 326.72063pt>
+<figs/acf-training.png, id=56, 385.44pt x 326.72063pt>
 File: figs/acf-training.png Graphic file (type png)
 <use figs/acf-training.png>
-Package pdftex.def Info: figs/acf-training.png  used on input line 86.
+Package pdftex.def Info: figs/acf-training.png  used on input line 87.
 (pdftex.def)             Requested size: 227.62204pt x 192.94296pt.
-<figs/pacf-training.png, id=59, 513.92pt x 435.6275pt>
+<figs/pacf-training.png, id=58, 513.92pt x 435.6275pt>
 File: figs/pacf-training.png Graphic file (type png)
 <use figs/pacf-training.png>
-Package pdftex.def Info: figs/pacf-training.png  used on input line 88.
+Package pdftex.def Info: figs/pacf-training.png  used on input line 89.
 (pdftex.def)             Requested size: 227.62204pt x 192.94629pt.
  [2 <./figs/stl-decomp.png>] [3 <./figs/acf-training.png> <./figs/pacf-training
 .png>]
-[4] [5] (EstrellaKwongNakajimaWangYun-stat443project.aux)
+<figs/ccf-UR-IR.png, id=78, 790.45313pt x 487.8225pt>
+File: figs/ccf-UR-IR.png Graphic file (type png)
+<use figs/ccf-UR-IR.png>
+Package pdftex.def Info: figs/ccf-UR-IR.png  used on input line 152.
+(pdftex.def)             Requested size: 284.52756pt x 175.59363pt.
+
+[4]
+<figs/ccf-UR-LFP.png, id=88, 526.96875pt x 325.215pt>
+File: figs/ccf-UR-LFP.png Graphic file (type png)
+<use figs/ccf-UR-LFP.png>
+Package pdftex.def Info: figs/ccf-UR-LFP.png  used on input line 159.
+(pdftex.def)             Requested size: 284.52756pt x 175.60355pt.
+<figs/ccf-UR-WAP.png, id=89, 526.96875pt x 325.215pt>
+File: figs/ccf-UR-WAP.png Graphic file (type png)
+<use figs/ccf-UR-WAP.png>
+Package pdftex.def Info: figs/ccf-UR-WAP.png  used on input line 166.
+(pdftex.def)             Requested size: 284.52756pt x 175.60355pt.
+ [5 <./figs/ccf-UR-IR.png> <./figs/ccf-UR-LFP.png> <./figs/ccf-UR-WAP.png>]
+[6] (EstrellaKwongNakajimaWangYun-stat443project.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
@@ -478,10 +496,10 @@ out' has not changed.
 (rerunfilecheck)             Checksum: F54D595FC3263AC06A4AE99EA6F5067C;1590.
  ) 
 Here is how much of TeX's memory you used:
- 13236 strings out of 467865
- 224645 string characters out of 5418305
+ 13281 strings out of 467865
+ 225675 string characters out of 5418305
  679964 words of memory out of 5000000
- 41973 multiletter control sequences out of 15000+600000
+ 42014 multiletter control sequences out of 15000+600000
  633607 words of font info for 61 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  75i,10n,79p,1107b,458s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -490,17 +508,18 @@ Here is how much of TeX's memory you used:
 ts/cm/cmbx10.pfb><C:/Users/skyyy/AppData/Local/Programs/MiKTeX/fonts/type1/publ
 ic/amsfonts/cm/cmbx12.pfb><C:/Users/skyyy/AppData/Local/Programs/MiKTeX/fonts/t
 ype1/public/amsfonts/cm/cmmi10.pfb><C:/Users/skyyy/AppData/Local/Programs/MiKTe
-X/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/skyyy/AppData/Local/Progra
-ms/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/skyyy/AppData/Loca
-l/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/skyyy/AppD
-ata/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/sky
-yy/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Us
-ers/skyyy/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt10.p
-fb>
-Output written on EstrellaKwongNakajimaWangYun-stat443project.pdf (5 pages, 182
-028 bytes).
+X/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Users/skyyy/AppData/Local/Progra
+ms/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/skyyy/AppData/Loca
+l/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/skyyy/AppD
+ata/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/sk
+yyy/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/U
+sers/skyyy/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pf
+b><C:/Users/skyyy/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/
+cmtt10.pfb>
+Output written on EstrellaKwongNakajimaWangYun-stat443project.pdf (6 pages, 223
+850 bytes).
 PDF statistics:
- 144 PDF objects out of 1000 (max. 8388607)
- 29 named destinations out of 1000 (max. 500000)
- 96 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 166 PDF objects out of 1000 (max. 8388607)
+ 33 named destinations out of 1000 (max. 500000)
+ 111 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -515,18 +515,10 @@ holdout_df <- data[n_train+1:n, ]
 
 head(train_df)
 
-
-## CCF and Correlation Plot
-# Colinearity Between LFP and WP
-
-# Collinearity between LFP and WP
-corr_table <- cor(select(train_df, -observation_date))
-
 # We decided to exclude working_pop_total from our regression model due to collinearity between unemployment_rate and labor_force_total. 
 # Hence, we only examine interest rate and labor force participation in our ARMAX model. 
 
 # CCF Plots for each of the predictors
-
 # Check if x_t leads y_t (y_t, x_t (Labor Force Participation)) 
 # Due to the non-stationarity of y_t, differencing helps avoid spurious correlations
 

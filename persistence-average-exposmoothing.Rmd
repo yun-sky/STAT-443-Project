@@ -11,6 +11,8 @@ source("data_cleaning_and_dependencies.R")
 ```{r}
 pred_periodic = numeric(length(holdout_unemp))
 
+length(train_unemp)
+
 for (i in 1:12) {
   pred_periodic[i] = train_unemp[(n_train)-12+i]
 }
@@ -26,9 +28,9 @@ rmse
 
 # Average
 ```{r}
-rate_mean = mean(train_df$unemployment_rate)
-rate_fc = rep(rate_mean, length(holdout_df$unemployment_rate))
-rmse_rate = sqrt(mean((holdout_df$unemployment_rate - rate_fc)^2))
+rate_mean = mean(train_unemp)
+rate_fc = rep(rate_mean, length(holdout_unemp))
+rmse_rate = sqrt(mean((holdout_unemp - rate_fc)^2))
 rmse_rate
 ```
 

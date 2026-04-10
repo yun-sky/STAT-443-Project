@@ -48,8 +48,8 @@ n = nrow(data)
 train_df <- data[1:n_train, ]
 holdout_df <- data[(n_train+1):n, ]
 
-train_unemp <- train_df$unemployment_rate
-holdout_unemp <- holdout_df$unemployment_rate
+train_unemp <- train_df[, UR_colname]
+holdout_unemp <- holdout_df[, UR_colname]
 
 
 

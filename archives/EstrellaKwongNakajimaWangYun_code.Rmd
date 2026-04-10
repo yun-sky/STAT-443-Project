@@ -58,7 +58,6 @@ rate_rmse_hw
 ```{r}
 
 # ARIMAX
-
 unemp <- read.csv("Unemployment.csv")
 work_pop <- read.csv("Work_pop.csv")
 labor_part <- read.csv("Labor_part.csv")
@@ -101,34 +100,6 @@ xreg_all <- as.matrix(data_total[, c("labor_part", "int_rates")])
 xreg_train <- xreg_all[1:n_train, , drop = FALSE]
 xreg_holdout <- xreg_all[(n_train + 1):n_total, , drop = FALSE]
 
-# ARIMAX 1-step ahead forecasts for holdout set
-arimax_fc <- function(tsdata, ntrain, order, seasonal, method, traincoef,
-                      include.mean, xreg, iprint = FALSE) {
-  obj <- arima(
-    tsdata,
-    order = order,
-    seasonal = seasonal,
-    init = traincoef,
-    fixed = traincoef,
-    method = method,
-    include.mean = include.mean,
-    xreg = xreg,
-    transform.pars = FALSE,
-    optim.control = list(maxit = 0)
-  )
-  
-  fc <- tsdata - obj$residuals
-  ntotal <- length(tsdata)
-  holdout_fc <- fc[(ntrain + 1):ntotal]
-  holdout <- tsdata[(ntrain + 1):ntotal]
-  
-  if (iprint) {
-    print(cbind(holdout, holdout_fc))
-  }
-  
-  rmse <- sqrt(mean((holdout - holdout_fc)^2))
-  list(rmse = rmse, fc = holdout_fc)
-}
 
 # 1. auto arimax
 library(forecast)
@@ -515,10 +486,18 @@ holdout_df <- data[n_train+1:n, ]
 
 head(train_df)
 
+
+## CCF and Correlation Plot
+# Colinearity Between LFP and WP
+
+# Collinearity between LFP and WP
+corr_table <- cor(select(train_df, -observation_date))
+
 # We decided to exclude working_pop_total from our regression model due to collinearity between unemployment_rate and labor_force_total. 
 # Hence, we only examine interest rate and labor force participation in our ARMAX model. 
 
 # CCF Plots for each of the predictors
+
 # Check if x_t leads y_t (y_t, x_t (Labor Force Participation)) 
 # Due to the non-stationarity of y_t, differencing helps avoid spurious correlations
 

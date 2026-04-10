@@ -1,0 +1,31 @@
+---
+title: "exploratory-analysis"
+output: pdf_document
+---
+
+# Data Source and Dependencies
+```{r}
+source("data_cleaning_and_dependencies.R")
+```
+
+
+# ACF, PACF, and STL Decomposition
+
+```{r}
+### PLOTS
+# train set TS plot
+par(mfrow = c(1, 1))
+
+train_ts_plot <- plot(train_ts,
+       main = "Training Set: Canada Monthly Unemployment Rate (1976–2015)",
+       ylab = "Unemployment Rate", xlab = "Year")
+# ACF
+acf_plot <- acf(train_ts, main = "ACF of Training Series")
+
+# PACF
+pacf_plot <- pacf(train_ts, main = "PACF of Training Series")
+
+# STL Decomposition
+stl_fit <- stl(train_ts, s.window = "periodic")
+plot(stl_fit, main = "STL Decomposition of Training Unemployment Series")
+```

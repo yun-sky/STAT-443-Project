@@ -1,0 +1,50 @@
+---
+title: "Persistence, Average and Exponential Smoothing"
+output: pdf_document
+---
+
+```{r}
+source("data_cleaning_and_dependencies.R")
+```
+
+# Seasonal Persistence
+```{r}
+pred_periodic = numeric(length(holdout_unemp))
+
+for (i in 1:12) {
+  pred_periodic[i] = train_unemp[(n_train)-12+i]
+}
+
+for (i in 13:length(holdout_unemp)) {
+  pred_periodic[i] = holdout_unemp[i-12]
+}
+
+rmse <- sqrt(mean((holdout_unemp - pred_periodic)^2))
+rmse
+```
+
+
+# Average
+```{r}
+rate_mean = mean(train_df$unemployment_rate)
+rate_fc = rep(rate_mean, length(holdout_df$unemployment_rate))
+rmse_rate = sqrt(mean((holdout_df$unemployment_rate - rate_fc)^2))
+rmse_rate
+```
+
+# Holt-Winters Exponential Smoothing
+```{r}
+rate_seasonal_ts <- train_ts
+
+hw_rate_model <- HoltWinters(rate_seasonal_ts) 
+rate_fc_result <- forecast(hw_rate_model, h = length(holdout_unemp))
+rate_rmse_hw <- sqrt(mean((holdout_unemp - rate_fc_result$mean)^2))
+rate_rmse_hw
+```
+
+
+
+
+
+
+

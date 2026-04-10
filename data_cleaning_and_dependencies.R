@@ -3,11 +3,17 @@ suppressPackageStartupMessages(library(forecast))
 suppressPackageStartupMessages(library(corrplot))
 suppressPackageStartupMessages(library(knitr))
 
+UR_link <- "https://raw.githubusercontent.com/yun-sky/STAT-443-Project/refs/heads/master/data/unemployment.csv"
+LFP_link <- "https://raw.githubusercontent.com/yun-sky/STAT-443-Project/refs/heads/master/data/LFPR_total.csv"
+WAP_link <- "https://raw.githubusercontent.com/yun-sky/STAT-443-Project/refs/heads/master/data/WP_total.csv"
+IR_link <- "https://raw.githubusercontent.com/yun-sky/STAT-443-Project/refs/heads/master/data/interest_rate.csv"
+
+
 # Reading in dataset
-unempl <- read.csv("data/unemployment.csv", header=TRUE)
-LF_total <- read.csv("data/LFPR_total.csv", header=TRUE)
-WAP_total <- read.csv("data/WP_total.csv", header=TRUE)
-int_rate <- read.csv("data/interest_rate.csv", header=TRUE)
+unempl <- read.csv(UR_link, header=TRUE)
+LF_total <- read.csv(LFP_link, header=TRUE)
+WAP_total <- read.csv(WAP_link, header=TRUE)
+int_rate <- read.csv(IR_link, header=TRUE)
 
 obs_date_colname = "date"
 UR_colname = "unemployment"
